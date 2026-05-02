@@ -6,17 +6,18 @@
 
 <style>
 body {
+  margin: 0;
   font-family: Arial;
   background: #0f172a;
   color: white;
-  margin: 0;
 }
 
 header {
   padding: 15px;
   text-align: center;
   font-size: 22px;
-  background: #0369a1;
+  background: #0284c7;
+  font-weight: bold;
 }
 
 .grid {
@@ -28,34 +29,37 @@ header {
 
 .card {
   position: relative;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
+  background: black;
 }
 
-.card iframe {
+.card video {
   width: 100%;
   height: 140px;
+  object-fit: cover;
 }
 
 .id {
   position: absolute;
-  top: 5px;
-  left: 5px;
+  top: 6px;
+  left: 6px;
   background: white;
   color: black;
   padding: 3px 6px;
-  border-radius: 5px;
+  border-radius: 6px;
   font-size: 12px;
+  font-weight: bold;
 }
 
 .check {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  background: green;
-  width: 20px;
-  height: 20px;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  background: limegreen;
   border-radius: 50%;
   display: none;
 }
@@ -68,20 +72,21 @@ header {
   position: fixed;
   bottom: 0;
   width: 100%;
-  background: #1e293b;
-  padding: 10px;
+  background: #020617;
+  padding: 12px;
   text-align: center;
+  border-top: 1px solid #334155;
 }
 
 button {
-  padding: 10px;
+  padding: 10px 20px;
   background: orange;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   font-weight: bold;
+  font-size: 14px;
 }
 </style>
-
 </head>
 
 <body>
@@ -93,17 +98,17 @@ button {
 <div class="cart">
   🛒 <span id="count">0</span> clips | Total: S/<span id="total">0</span>
   <br><br>
-  <button onclick="checkout()">Pagar (Yape / Plin)</button>
+  <button onclick="pagar()">Pagar (Yape / Plin)</button>
 </div>
 
 <script>
 const price = 10;
-let cart = [];
+let seleccionados = [];
 
 const videos = [
-  {id:"#001", url:"https://www.youtube.com/embed/dQw4w9WgXcQ"},
-  {id:"#002", url:"https://www.youtube.com/embed/dQw4w9WgXcQ"},
-  {id:"#003", url:"https://www.youtube.com/embed/dQw4w9WgXcQ"}
+  {id:"001", src:"001_preview.mp4"},
+  {id:"002", src:"002_preview.mp4"},
+  {id:"003", src:"003_preview.mp4"}
 ];
 
 const grid = document.getElementById("grid");
@@ -111,41 +116,49 @@ const grid = document.getElementById("grid");
 videos.forEach(v => {
   let div = document.createElement("div");
   div.className = "card";
+
   div.innerHTML = `
-    <div class="id">${v.id}</div>
+    <div class="id">#${v.id}</div>
     <div class="check"></div>
-    <iframe src="${v.url}" frameborder="0" allowfullscreen></iframe>
+    <video muted loop>
+      <source src="${v.src}" type="video/mp4">
+    </video>
   `;
 
   div.onclick = () => toggle(v.id, div);
+
+  div.onmouseover = () => div.querySelector("video").play();
+  div.onmouseleave = () => div.querySelector("video").pause();
+
   grid.appendChild(div);
 });
 
 function toggle(id, el){
-  if(cart.includes(id)){
-    cart = cart.filter(x => x !== id);
+  if(seleccionados.includes(id)){
+    seleccionados = seleccionados.filter(v => v !== id);
     el.classList.remove("selected");
   } else {
-    cart.push(id);
+    seleccionados.push(id);
     el.classList.add("selected");
   }
-  update();
+  actualizar();
 }
 
-function update(){
-  document.getElementById("count").innerText = cart.length;
-  document.getElementById("total").innerText = cart.length * price;
+function actualizar(){
+  document.getElementById("count").innerText = seleccionados.length;
+  document.getElementById("total").innerText = seleccionados.length * price;
 }
 
-function checkout(){
-  if(cart.length === 0){
-    alert("Selecciona al menos 1 clip");
+function pagar(){
+  if(seleccionados.length === 0){
+    alert("Selecciona al menos un clip");
     return;
   }
 
-  let mensaje = `Hola, quiero estos clips:\n${cart.join(", ")}\nTotal: S/${cart.length * price}`;
-  
-  window.open(`https://wa.me/51999999999?text=${encodeURIComponent(mensaje)}`);
+  let lista = seleccionados.join(", ");
+  let mensaje = `Hola, quiero estos clips: ${lista} - Total S/${seleccionados.length * price}. Ya hice el pago, te envío comprobante.`;
+
+  window.open(`https://wa.me/51999999999?text=${encodeURIComponent(mensaje)}`, "_blank");
 }
 </script>
 
